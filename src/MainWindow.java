@@ -7,6 +7,9 @@ public class MainWindow extends JFrame {
 
     MainPanel panel;
 
+    /**
+     * Constructor which initializes all the objects, sets the title, size and shows the frame then adds the objects
+     */
     public MainWindow() {
         initializeObjects();
         this.setTitle("Type Notes");
@@ -19,10 +22,16 @@ public class MainWindow extends JFrame {
 
     }
 
+    /**
+     * Initializes all the objects in the class
+     */
     private void initializeObjects() {
         panel = new MainPanel();
     }
 
+    /**
+     * Adds all the objects or elements in the frame
+     */
     private void addObjects() {
         this.add(panel);
     }

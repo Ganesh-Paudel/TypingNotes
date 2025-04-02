@@ -10,24 +10,34 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class MainPanel extends JPanel implements Runnable {
+public class MainPanel extends JPanel{
 
     JButton fileChooseButton;
     JFileChooser fileChooser;
     String filePath = "";
     ReadFile readFile;
     int posX, posY;
+    TextPanel textPanel;
 
+    /**
+     * initializes the objects,
+     * Background, adds button,
+     * Starts the thread
+     *
+     */
     public MainPanel() {
         initializeObjects();
         buttonConfig();
         this.setBackground(Color.lightGray);
         this.setLayout(new BorderLayout());
         addObjects();
-        new Thread(this).start();
 
     }
 
+    /**
+     * Configures the button and overrides actionPerformed method which opens a file Choose dialogbox on click of the
+     * Button and then it calls the ReadFile class which will read the whole file for now
+     */
     private void buttonConfig() {
         fileChooseButton.setMaximumSize(new Dimension(50, 30));
         fileChooseButton.setPreferredSize(new Dimension(50, 30));
@@ -38,7 +48,8 @@ public class MainPanel extends JPanel implements Runnable {
                 if (resultValue == JFileChooser.APPROVE_OPTION) {
                     filePath = fileChooser.getSelectedFile().getAbsolutePath();
                     System.out.println("File selected: " + fileChooser.getSelectedFile().getAbsolutePath());
-                    readFile = new ReadFile(filePath);
+                    textPanel.readFile(filePath);
+                    textPanel.printQueue();
 
                 } else if (resultValue == JFileChooser.CANCEL_OPTION) {
                     System.out.println("File selection cancelled.");
@@ -53,40 +64,25 @@ public class MainPanel extends JPanel implements Runnable {
 
     }
 
+    /**
+     * Initializes the objects
+     */
     private void initializeObjects() {
         posX = 600;
         posY = 250;
         fileChooseButton = new JButton("Choose File");
         fileChooser = new JFileChooser();
         fileChooser.setFileFilter(new FileNameExtensionFilter("Text files (*.txt)", "txt"));
+        textPanel = new TextPanel();
     }
 
+    /**
+     * Adds the objects
+     */
     private void addObjects() {
         this.add(fileChooseButton, BorderLayout.NORTH);
+        this.add(textPanel, BorderLayout.CENTER);
     }
 
-    @Override
-    public void run() {
-        while (true) {
-            System.out.println("Running.....");
-            update();
-            repaint();
 
-        }
-    }
-
-    public void update() {
-        if (posX > 0) {
-            posX -= 1;
-        } else {
-            posX = 600;
-        }
-    }
-
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        g.setFont(new Font("Arial", Font.BOLD, 40));
-        g.drawString("G", posX, posY);
-    }
 }
