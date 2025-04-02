@@ -5,6 +5,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
@@ -50,6 +52,7 @@ public class MainPanel extends JPanel{
                     System.out.println("File selected: " + fileChooser.getSelectedFile().getAbsolutePath());
                     textPanel.readFile(filePath);
                     textPanel.printQueue();
+                    textPanel.requestFocusInWindow();
 
                 } else if (resultValue == JFileChooser.CANCEL_OPTION) {
                     System.out.println("File selection cancelled.");
@@ -82,7 +85,9 @@ public class MainPanel extends JPanel{
     private void addObjects() {
         this.add(fileChooseButton, BorderLayout.NORTH);
         this.add(textPanel, BorderLayout.CENTER);
+
     }
+
 
 
 }

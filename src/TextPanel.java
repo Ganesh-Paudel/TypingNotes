@@ -1,10 +1,12 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class TextPanel extends JPanel implements Runnable{
+public class TextPanel extends JPanel implements KeyListener,Runnable{
 
     private static class stringRepresentation{
         private int xCord, yCord;
@@ -30,7 +32,8 @@ public class TextPanel extends JPanel implements Runnable{
     ReadFile readFile;
     Queue<stringRepresentation> strings;
     boolean haveFile = false;
-    char currentChar;
+    static char currentChar;
+    static int typeCounter = 0;
 
 
 
@@ -38,7 +41,8 @@ public class TextPanel extends JPanel implements Runnable{
         this.setMinimumSize(new Dimension(800, 200));
         this.setMaximumSize(new Dimension(800, 200));
         this.setBackground(Color.gray);
-//        this.setFocusable(true);
+        this.setFocusable(true);
+        this.addKeyListener(this);
         thread = new Thread(this);
         thread.start();
     }
@@ -65,7 +69,9 @@ public class TextPanel extends JPanel implements Runnable{
     }
 
     public void update(){
-
+        for(stringRepresentation sr: strings){
+            sr.xCord -= 30;
+        }
     }
 
 
@@ -115,10 +121,35 @@ public class TextPanel extends JPanel implements Runnable{
         }
     }
 
-    public void checkKeyPressed(char key){
+    public static boolean  checkKeyPressed(char key){
         if(key == currentChar){
-            update();
+            return true;
         }
+        return false;
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        char key = e.getKeyChar();
+        System.out.println(key);
+        if(checkKeyPressed(key)){
+//            typeCounter++;
+//            if(typeCounter == 100){
+//
+//            }
+            this.update();
+        };
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+
     }
 
 }
