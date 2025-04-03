@@ -5,29 +5,33 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class ReadFile {
 
-    private BufferedReader reader;
-    private String line;
     private ArrayList<String> wordsInFile;
 
     public ReadFile(String filePath) {
         wordsInFile = new ArrayList<>();
         try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8));
+            String line;
             while((line = reader.readLine()) != null){
-                String[] words = line.split("\\s+");
+//                line+=".";
+                if(!line.trim().isEmpty()){
+                    String[] words = line.split("\\s+");
 
-                System.out.print("The line: ");
+//                System.out.print("The line: ");
 //                System.out.println(line);
-                for(String word : words){
-                    System.out.print(word + "!!");
-                    wordsInFile.add(words[0]);
-
-
+                    //                    System.out.print(word + "!!");
+                    wordsInFile.addAll(Arrays.stream(words)
+                            .filter(word -> !word.isEmpty())
+                            .toList());
                 }
+
             }
+            reader.close();
 
         } catch (IOException e) {
             System.out.println("Error reading file: " + e.getMessage());

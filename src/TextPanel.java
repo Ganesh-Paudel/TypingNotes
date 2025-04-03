@@ -17,6 +17,12 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
         private int xCord, yCord;
         private String word;
         private boolean active = false;
+        private boolean isFalling = false;
+        private double alpha = 1.0f;
+        private double moveY= 0;
+
+
+
         public stringRepresentation(String letter){
             this.word = letter;
         }
@@ -27,6 +33,36 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
         public void setYCord(int yCord){
             this.yCord = yCord;
         }
+
+        public void startFalling(){
+            isFalling = true;
+            moveY = 5;
+        }
+
+        public void updateFalling(){
+            if(isFalling){
+                yCord += moveY;
+                if(alpha > 0){
+                    alpha -= 0.01f;
+                }
+                else{
+                    alpha = 0;
+                }
+                if(yCord >= 430){
+                    yCord = 430;
+
+//                    moveY = -moveY * 0.8f;
+
+//                    if(Math.abs(moveY) < 0.1f){
+//                        moveY = 0;
+//                    }
+                }
+//                if (yCord <= 300 && moveY < 0 && Math.abs(moveY) < 1) {
+//                    moveY = -moveY * 0.8f;
+//                }
+            }
+        }
+
 
         @Override
         public String toString(){
@@ -47,10 +83,12 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
     ReadFile readFile;
     ArrayList<stringRepresentation> strings;
     boolean haveFile = false;
-    static char currentChar;
-    static String currentWord;
-    static int typeCounter = 0;
-    static int wordCounter = 0;
+    private char currentChar;
+    private String currentWord;
+    private int typeCounter = 0;
+    private int wordCounter = 0;
+    private boolean drawWordAnimation = false;
+    private String drawingWord;
 
 
     /**
@@ -93,7 +131,23 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
     public void run() {
         while(true){
             repaint();
+            if(haveFile){
+                updateFallingWords();
+            }
+            try {
+                Thread.sleep(16); // ~60 FPS
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 //            System.out.println("Running...");
+        }
+    }
+
+    private void updateFallingWords() {
+        for(stringRepresentation sr: strings){
+            if(sr.isFalling){
+                sr.updateFalling();
+            }
         }
     }
 
@@ -102,23 +156,39 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
      * Decrease the x coordinates so that it makes animation like style of the texts moving left
      * Only get's called if the user inputs correct word
      */
-    public void update(){
+    public void update() {
+        int removeCount = 0;
         ArrayList<stringRepresentation> toRemove = new ArrayList<>();
-        for(stringRepresentation sr: strings){
-            sr.xCord -= 30;
-            if(sr.xCord < (-1 * sr.word.length())){
-                toRemove.add(sr);
+
+        // Ensure wordCounter does not go out of bounds
+        if (wordCounter < strings.size() && strings.get(wordCounter).xCord >= 50) {
+            for (stringRepresentation sr : strings) {
+                if(!sr.isFalling){
+                    sr.xCord -= 20;
+                }
+                if (sr.isFalling && sr.alpha <= 0) {
+                    toRemove.add(sr);
+                    removeCount++;
+                }
             }
         }
+
+        // Remove the words that moved out of bounds
         strings.removeAll(toRemove);
 
-        assert wordCounter < strings.size();
-        strings.get(wordCounter).active = true;
-        currentWord = strings.get(wordCounter).word;
-        System.out.println(strings.get(wordCounter).word);
+        // Adjust wordCounter safely
+        wordCounter = Math.max(0, wordCounter - removeCount);
 
+        // Ensure wordCounter is valid before accessing elements
+        if (!strings.isEmpty() && wordCounter < strings.size()) {
+            strings.get(wordCounter).active = true;
+            currentWord = strings.get(wordCounter).word;
+        } else {
+            currentWord = "";  // Avoid out-of-bounds error
+        }
 
-
+        System.out.println(wordCounter);
+        System.out.println(currentWord);
     }
 
 
@@ -129,6 +199,7 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
      */
     @Override
     public void paintComponent(Graphics g) {
+        char currentChar;
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         g2d.setColor(Color.white);
@@ -136,12 +207,17 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
         if(haveFile) {
             for (stringRepresentation s : strings) {
                 if (s.xCord <= 800 && s.xCord >= -10) {
-                    g2d.setColor(Color.black);
+                    g2d.setColor(new Color(0, 0, 0, (int) (Math.max(0, Math.min(1, s.alpha)) * 255)));
                     if(s.active){
+                        currentChar = s.word.charAt(typeCounter);
+                        g2d.setColor(Color.lightGray);
+                        g2d.drawString("Current letter: '" + String.valueOf(currentChar) + "'", 200, 150);
                         g2d.setColor(Color.red);
                     }
+                    int drawY = (int) (s.yCord + s.moveY);
 
                     g2d.drawString(s.word, s.xCord, s.yCord);
+
                 }
 
             }
@@ -174,11 +250,13 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
     private void initializePositions(){
         int x = 400, y = 250, stepX;
 
+        Font font = new Font("Arial", Font.PLAIN, 30);
+        FontMetrics metrics = getFontMetrics(font);
         for(int i = 0; i < strings.size(); i++){
-            stepX = strings.get(i).word.length() * 20;
+            stepX = metrics.stringWidth(strings.get(i).word);
             strings.get(i).setXCord(x);
             strings.get(i).setYCord(y);
-            x += stepX;
+            x += stepX + 20;
 
         }
     }
@@ -198,17 +276,26 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
      * @param key the character pressed by the user
      * @return true if the character is the same as the current one and false if it is not
      */
-    public static boolean  checkKeyPressed(char key){
-        if(typeCounter < currentWord.length() && key == currentWord.charAt(typeCounter)){
+    public boolean checkKeyPressed(char key) {
+        if (typeCounter < currentWord.length() && key == currentWord.charAt(typeCounter)) {
             typeCounter++;
-            if(typeCounter == currentWord.length()){
+
+            // If whole word is typed correctly, move to the next one
+            if (typeCounter == currentWord.length()) {
+                strings.get(wordCounter).active = false;
+                strings.get(wordCounter).startFalling();
                 wordCounter++;
-                return false;
+                if (wordCounter < strings.size()) {
+                    currentWord = strings.get(wordCounter).word;
+                    typeCounter = 0;
+                    strings.get(wordCounter).active = true; // Activate new word
+                }
             }
             return true;
         }
         return false;
     }
+
 
     /**
      * Methods of KeyListener interface
