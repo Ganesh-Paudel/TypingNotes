@@ -17,9 +17,15 @@ public class ReadFile {
         try {
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8));
             while((line = reader.readLine()) != null){
-                String[] words = line.split(" ");
+                String[] words = line.split("\\s+");
+
+                System.out.print("The line: ");
+//                System.out.println(line);
                 for(String word : words){
+                    System.out.print(word + "!!");
                     wordsInFile.add(words[0]);
+
+
                 }
             }
 

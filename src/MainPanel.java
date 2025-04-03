@@ -51,7 +51,7 @@ public class MainPanel extends JPanel{
                     filePath = fileChooser.getSelectedFile().getAbsolutePath();
                     System.out.println("File selected: " + fileChooser.getSelectedFile().getAbsolutePath());
                     textPanel.readFile(filePath);
-                    textPanel.printQueue();
+//                    textPanel.printQueue();
                     textPanel.requestFocusInWindow();
 
                 } else if (resultValue == JFileChooser.CANCEL_OPTION) {

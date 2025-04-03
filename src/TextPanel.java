@@ -16,6 +16,7 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
     private static class stringRepresentation{
         private int xCord, yCord;
         private String word;
+        private boolean active = false;
         public stringRepresentation(String letter){
             this.word = letter;
         }
@@ -105,11 +106,18 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
         ArrayList<stringRepresentation> toRemove = new ArrayList<>();
         for(stringRepresentation sr: strings){
             sr.xCord -= 30;
-            if(sr.xCord <-10){
+            if(sr.xCord < (-1 * sr.word.length())){
                 toRemove.add(sr);
             }
         }
         strings.removeAll(toRemove);
+
+        assert wordCounter < strings.size();
+        strings.get(wordCounter).active = true;
+        currentWord = strings.get(wordCounter).word;
+        System.out.println(strings.get(wordCounter).word);
+
+
 
     }
 
@@ -129,8 +137,7 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
             for (stringRepresentation s : strings) {
                 if (s.xCord <= 800 && s.xCord >= -10) {
                     g2d.setColor(Color.black);
-                    if(s.xCord == 400){
-                        currentWord = s.word;
+                    if(s.active){
                         g2d.setColor(Color.red);
                     }
 
@@ -155,6 +162,7 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
         for(int i = 0; i < characters.size(); i++){
             strings.add(new stringRepresentation(characters.get(i)));
         }
+        currentWord = strings.get(wordCounter).word;
     }
 
     /**
@@ -167,9 +175,11 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
         int x = 400, y = 250, stepX;
 
         for(int i = 0; i < strings.size(); i++){
-            stepX = strings.get(i).word.length() * 5;
+            stepX = strings.get(i).word.length() * 20;
             strings.get(i).setXCord(x);
+            strings.get(i).setYCord(y);
             x += stepX;
+
         }
     }
 
@@ -189,10 +199,10 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
      * @return true if the character is the same as the current one and false if it is not
      */
     public static boolean  checkKeyPressed(char key){
-        if(key == currentWord.charAt(wordCounter)){
-            wordCounter++;
-            if(wordCounter == currentWord.length()){
-                wordCounter = 0;
+        if(typeCounter < currentWord.length() && key == currentWord.charAt(typeCounter)){
+            typeCounter++;
+            if(typeCounter == currentWord.length()){
+                wordCounter++;
                 return false;
             }
             return true;
