@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -30,7 +31,7 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
 
     Thread thread;
     ReadFile readFile;
-    Queue<stringRepresentation> strings;
+    ArrayList<stringRepresentation> strings;
     boolean haveFile = false;
     static char currentChar;
     static int typeCounter = 0;
@@ -71,7 +72,11 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
     public void update(){
         for(stringRepresentation sr: strings){
             sr.xCord -= 30;
+            if(sr.xCord <= -10){
+                strings.remove(sr);
+            }
         }
+
     }
 
 
@@ -83,22 +88,24 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
         g2d.setFont(new Font("Arial", Font.PLAIN, 30));
         if(haveFile) {
             for (stringRepresentation s : strings) {
-                if (s.xCord <= 800) {
+                if (s.xCord <= 800 && s.xCord >= -10) {
                     g2d.setColor(Color.black);
                     if(s.xCord == 400){
                         currentChar = s.letter;
                         g2d.setColor(Color.red);
                     }
+
                     String str = String.valueOf(s.letter);
                     g2d.drawString(str, s.xCord, s.yCord);
                 }
+
             }
         }
     }
 
     private void initializeQueue() throws IOException {
         String characters = readFile.getCharacters();
-        strings = new LinkedList<stringRepresentation>();
+        strings = new ArrayList<stringRepresentation>();
 
         for(int i = 0; i < characters.length(); i++){
             strings.add(new stringRepresentation(characters.charAt(i)));
