@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class ReadFile {
 
@@ -19,7 +20,7 @@ public class ReadFile {
         }
     }
 
-    public String getCharacters() throws IOException {
+    public ArrayList<String> getCharacters() throws IOException {
 
         char[] buffer = new char[CHUNK_SIZE];
         int charsRead = reader.read(buffer, 0, CHUNK_SIZE);
@@ -28,14 +29,16 @@ public class ReadFile {
         currentPosition += charsRead;
         String str = new String (buffer, 0, charsRead);
         StringBuilder newStr = new StringBuilder();
+        ArrayList<String> words = new ArrayList<String>();
 
         boolean spaceAdded = false;
 
         for(char c : str.toCharArray()){
             if (c == ' ') {
-                if(!spaceAdded && newStr.length() > 0) {
-                    newStr.append(' ');
+                if(!spaceAdded) {
                     spaceAdded = true;
+                    words.add(newStr.toString());
+                    newStr = new StringBuilder();
                 }
             }
             else if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '.'){
@@ -45,7 +48,7 @@ public class ReadFile {
         }
 
 
-        return newStr.toString();
+        return words;
     }
 
 
