@@ -70,12 +70,14 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
     }
 
     public void update(){
+        ArrayList<stringRepresentation> toRemove = new ArrayList<>();
         for(stringRepresentation sr: strings){
             sr.xCord -= 30;
-            if(sr.xCord <= -10){
-                strings.remove(sr);
+            if(sr.xCord <-10){
+                toRemove.add(sr);
             }
         }
+        strings.removeAll(toRemove);
 
     }
 
@@ -105,7 +107,7 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
 
     private void initializeQueue() throws IOException {
         String characters = readFile.getCharacters();
-        strings = new ArrayList<stringRepresentation>();
+        strings = new ArrayList<>();
 
         for(int i = 0; i < characters.length(); i++){
             strings.add(new stringRepresentation(characters.charAt(i)));
