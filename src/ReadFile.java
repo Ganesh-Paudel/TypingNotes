@@ -1,54 +1,35 @@
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class ReadFile {
 
     private BufferedReader reader;
-    private static int currentPosition;
-    private static final int CHUNK_SIZE = 200;
-    public ReadFile(String filePath) {
-        currentPosition = 0;
+    private String line;
+    private ArrayList<String> wordsInFile;
 
+    public ReadFile(String filePath) {
+        wordsInFile = new ArrayList<>();
         try {
-            reader = new BufferedReader(new java.io.FileReader(filePath));
-            if (reader.ready())
-                reader.skip(currentPosition);
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8));
+            while((line = reader.readLine()) != null){
+                String[] words = line.split(" ");
+                for(String word : words){
+                    wordsInFile.add(words[0]);
+                }
+            }
 
         } catch (IOException e) {
             System.out.println("Error reading file: " + e.getMessage());
         }
     }
 
-    public ArrayList<String> getCharacters() throws IOException {
-
-        char[] buffer = new char[CHUNK_SIZE];
-        int charsRead = reader.read(buffer, 0, CHUNK_SIZE);
-        if(charsRead == -1) return null;
-
-        currentPosition += charsRead;
-        String str = new String (buffer, 0, charsRead);
-        StringBuilder newStr = new StringBuilder();
-        ArrayList<String> words = new ArrayList<String>();
-
-        boolean spaceAdded = false;
-
-        for(char c : str.toCharArray()){
-            if (c == ' ') {
-                if(!spaceAdded) {
-                    spaceAdded = true;
-                    words.add(newStr.toString());
-                    newStr = new StringBuilder();
-                }
-            }
-            else if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '.'){
-                newStr.append(c);
-                spaceAdded = false;
-            }
-        }
-
-
-        return words;
+    public ArrayList<String> getWords(){
+        return wordsInFile;
     }
 
 

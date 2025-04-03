@@ -4,8 +4,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
 
 public class TextPanel extends JPanel implements KeyListener,Runnable{
 
@@ -148,7 +146,7 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
      * @throws IOException if the file doesnot exist in the given file path
      */
     private void initializeQueue() throws IOException {
-        ArrayList<String> characters = readFile.getCharacters();
+        ArrayList<String> characters = readFile.getWords();
         strings = new ArrayList<>();
 
         /*
@@ -212,7 +210,7 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
     }
 
     /**
-     * Check if the key is current character and updates the list if it is 
+     * Check if the key is current character and updates the list if it is
      * @param e the event to be processed
      */
     @Override
