@@ -1,6 +1,11 @@
+/*
+Entry point of the program calls the mainWindow class
+ */
 public class App {
+    /* Main class */
     public static void main(String[] args) throws Exception {
-        //Calls the MainWindow class which is an JFrame
-        MainWindow window = new MainWindow();
+
+        MainWindow window = new MainWindow();//Calls the MainWindow class which is an JFrame
+
     }
 }

@@ -1,40 +1,34 @@
-import java.awt.Color;
-import java.awt.Dimension;
+/*
+Ganesh Paudel
+1.0.0
+ */
 
+import java.awt.Dimension;
 import javax.swing.JFrame;
 
+/*
+ *MainWindow which will act as an frame for the whole application
+ * It has a panel inside which all the compoenents will be placed
+ */
 public class MainWindow extends JFrame {
 
-    MainPanel panel;
+    MainPanel panel = new MainPanel();
 
     /**
      * Constructor which initializes all the objects, sets the title, size and shows the frame then adds the objects
      */
     public MainWindow() {
-        initializeObjects();
-        this.setTitle("Type Notes");
-        this.setSize(new Dimension(800, 500));
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // this.setBackground(Color.blue);
-        this.setResizable(false);
-        this.setFocusable(true);
-        this.setVisible(true);
-        addObjects();
 
-    }
+        this.setTitle("Type Notes"); //title of the frame
+        this.setSize(new Dimension(800, 500)); //size of the frame
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // ensures it closes when the user clicks the close button
+        this.setResizable(false);// fixed size no change
 
-    /**
-     * Initializes all the objects in the class
-     */
-    private void initializeObjects() {
-        panel = new MainPanel();
-    }
-
-    /**
-     * Adds all the objects or elements in the frame
-     */
-    private void addObjects() {
+//        this.setFocusable(true);
+        this.setVisible(true);// makes sure it is visible on the screen
         this.add(panel);
+
     }
+
 
 }

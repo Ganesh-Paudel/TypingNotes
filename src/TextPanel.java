@@ -1,3 +1,8 @@
+/*
+Ganesh Paudel
+1.0.0
+ */
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -5,6 +10,9 @@ import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/*
+textpanel which will be the main animation panel which will be the keyarea of the app
+ */
 public class TextPanel extends JPanel implements KeyListener,Runnable{
 
 
@@ -14,31 +22,50 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
      * have some methods to change some properties
      */
     private static class stringRepresentation{
-        private int xCord, yCord;
-        private String word;
-        private boolean active = false;
-        private boolean isFalling = false;
-        private double alpha = 1.0f;
-        private double moveY= 0;
 
+        private int xCord, yCord; //x and y coordinates of the string that will be displayed
+        private String word; // the actual word
+        private boolean active = false; // denotes if the word is currently being typed or not
+        private boolean isFalling = false; // denotes if the word is falling or not
+        private double alpha = 1.0f; // to have the fading effect initial alpha value to 1
+        private double moveY= 0; // for the falling effect but initially just no falling with 0
 
-
-        public stringRepresentation(String letter){
-            this.word = letter;
+        /**
+         * creates a string representation with the given word
+         * @param word the word that is to be stored in this representation
+         */
+        public stringRepresentation(String word){
+            this.word = word;
         }
 
+        /**
+         * setter method or mutator method for the x coordinate
+         * @param xCord the value of the xcordinate
+         */
         public void setXCord(int xCord){
             this.xCord = xCord;
         }
+
+        /**
+         * mutator method for the y coordinates
+         * @param yCord the y coordinate of the string
+         */
         public void setYCord(int yCord){
             this.yCord = yCord;
         }
 
+        /**
+         * if the string is going to fall call this function
+         */
         public void startFalling(){
             isFalling = true;
             moveY = 5;
         }
 
+        /**
+         * if the string is falling changes the y coordinate of the string while slowly fading also doesn't go beyond the range of
+         * 430 vertically
+         */
         public void updateFalling(){
             if(isFalling){
                 yCord += moveY;
@@ -51,19 +78,15 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
                 if(yCord >= 430){
                     yCord = 430;
 
-//                    moveY = -moveY * 0.8f;
-
-//                    if(Math.abs(moveY) < 0.1f){
-//                        moveY = 0;
-//                    }
                 }
-//                if (yCord <= 300 && moveY < 0 && Math.abs(moveY) < 1) {
-//                    moveY = -moveY * 0.8f;
-//                }
             }
         }
 
 
+        /**
+         * Representation of the class
+         * @return about class in strings
+         */
         @Override
         public String toString(){
             return "Value: " + this.word + " X: " + xCord + " Y: " + yCord;
@@ -79,16 +102,13 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
      * typeCounter to keep track of how many types did the user made
      * wordCounter to keep track where are we in the list
      */
-    Thread thread;
-    ReadFile readFile;
-    ArrayList<stringRepresentation> strings;
-    boolean haveFile = false;
-    private char currentChar;
-    private String currentWord;
-    private int typeCounter = 0;
-    private int wordCounter = 0;
-    private boolean drawWordAnimation = false;
-    private String drawingWord;
+    Thread thread; // thread for the repaint and update
+    ReadFile readFile; //readfile to retrieve the data from the file
+    ArrayList<stringRepresentation> strings; // list of the stringrepresentation will be the ones being displayed
+    boolean haveFile = false; // to ensure that there won't be any errors while the user just opened and haven't chosen the file, used in if cases
+    private String currentWord; // stores the current active word
+    private int typeCounter = 0; // counts the no of letters we are in the word
+    private int wordCounter = 0; // counts the word we are in the list
 
 
     /**
@@ -98,13 +118,12 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
      * thread to start the thread
      */
     public TextPanel(){
-        this.setMinimumSize(new Dimension(800, 200));
-        this.setMaximumSize(new Dimension(800, 200));
+
         this.setBackground(Color.gray);
-        this.setFocusable(true);
-        this.addKeyListener(this);
-        thread = new Thread(this);
-        thread.start();
+        this.setFocusable(true); // grab the focus
+        this.addKeyListener(this); // adds a keylistener to the panel
+        thread = new Thread(this); // starts a thread on the panel
+        thread.start(); // starts the thread
     }
 
     /**
@@ -112,11 +131,11 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
      * @param filePath the path of the file to be read
      */
     public void readFile(String filePath){
-        readFile = new ReadFile(filePath);
-        haveFile = true;
+        readFile = new ReadFile(filePath); //creates a instance of readfile
+        haveFile = true; // changes the havefile to true which means we have the file
         try{
-            initializeQueue();
-            initializePositions();
+            initializeQueue(); //initializes the list
+            initializePositions(); //initializes the postiion of the strings
 
         }catch (IOException e){
             e.printStackTrace();
@@ -130,9 +149,9 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
     @Override
     public void run() {
         while(true){
-            repaint();
+            repaint(); // constantly repaints
             if(haveFile){
-                updateFallingWords();
+                updateFallingWords(); //if we have file it constantly checks for the falling words as well
             }
             try {
                 Thread.sleep(16); // ~60 FPS
@@ -143,7 +162,7 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
         }
     }
 
-    private void updateFallingWords() {
+    private void updateFallingWords() { //if the words are fallign then it will call the update falling method which will change the y coordinate
         for(stringRepresentation sr: strings){
             if(sr.isFalling){
                 sr.updateFalling();
@@ -157,11 +176,17 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
      * Only get's called if the user inputs correct word
      */
     public void update() {
-        int removeCount = 0;
-        ArrayList<stringRepresentation> toRemove = new ArrayList<>();
+        /*
+        i had to do the following because if not concurrent modification of the list occured
+         */
+        int removeCount = 0; //no of element to remove
+        ArrayList<stringRepresentation> toRemove = new ArrayList<>(); //list of item to remove
 
-        // Ensure wordCounter does not go out of bounds
+        /*word counter will always be in bound and also the x.cord will not go -beyond 50 */
         if (wordCounter < strings.size() && strings.get(wordCounter).xCord >= 50) {
+            /* go through the whole list and if they are not falling just change the x cordinate and if they fade away then add them to
+            removelist
+             */
             for (stringRepresentation sr : strings) {
                 if(!sr.isFalling){
                     sr.xCord -= 20;
@@ -173,18 +198,19 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
             }
         }
 
-        // Remove the words that moved out of bounds
+        /* Remove the words that moved out of bounds */
         strings.removeAll(toRemove);
 
-        // Adjust wordCounter safely
+        /* Adjust wordCounter safely */
         wordCounter = Math.max(0, wordCounter - removeCount);
 
-        // Ensure wordCounter is valid before accessing elements
+        /* Ensure wordCounter is valid before accessing elements */
         if (!strings.isEmpty() && wordCounter < strings.size()) {
+            /* set the word in the list which is current to active and also set the current word to be that word */
             strings.get(wordCounter).active = true;
             currentWord = strings.get(wordCounter).word;
         } else {
-            currentWord = "";  // Avoid out-of-bounds error
+            currentWord = "";
         }
 
         System.out.println(wordCounter);
@@ -199,23 +225,31 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
      */
     @Override
     public void paintComponent(Graphics g) {
-        char currentChar;
+
         super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.setColor(Color.white);
-        g2d.setFont(new Font("Arial", Font.PLAIN, 30));
+        char currentChar; //print the current char so the user won't get lost
+        Graphics2D g2d = (Graphics2D) g; //graphics2d
+        g2d.setFont(new Font("Arial", Font.PLAIN, 30)); // font of the strings and size
+
+        /* if we have the file */
         if(haveFile) {
+
             for (stringRepresentation s : strings) {
+                /* and while the strings are visible on the screen (in the screen bounds) */
                 if (s.xCord <= 800 && s.xCord >= -10) {
+                    /* set the color and alpha to be min of 0 and amx of 1 with */
                     g2d.setColor(new Color(0, 0, 0, (int) (Math.max(0, Math.min(1, s.alpha)) * 255)));
+                    /* if it's the active word then change the color to red */
                     if(s.active){
+                        /* this is to display the current character in the current word */
                         currentChar = s.word.charAt(typeCounter);
                         g2d.setColor(Color.lightGray);
                         g2d.drawString("Current letter: '" + String.valueOf(currentChar) + "'", 200, 150);
-                        g2d.setColor(Color.red);
-                    }
-                    int drawY = (int) (s.yCord + s.moveY);
 
+                        g2d.setColor(Color.red);//set the color to red
+                    }
+
+                    /* draw the string on it's coordinates */
                     g2d.drawString(s.word, s.xCord, s.yCord);
 
                 }
@@ -315,10 +349,7 @@ public class TextPanel extends JPanel implements KeyListener,Runnable{
         char key = e.getKeyChar();
         System.out.println(key);
         if(checkKeyPressed(key)){
-//            typeCounter++;
-//            if(typeCounter == 100){
-//
-//            }
+            /* update is only called if the key is correct */
             this.update();
         }
         else{
